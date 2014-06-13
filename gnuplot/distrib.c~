@@ -1,0 +1,7 @@
+#include "distrib.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+
+
+int calc_distrib(

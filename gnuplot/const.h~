@@ -1,0 +1,5 @@
+
+#define SIZE 1024
+#define TIME 20
+#define NB_VN 5
+#define FLOW_SIZE 10

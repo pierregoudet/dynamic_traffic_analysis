@@ -1,0 +1,14 @@
+#!/bin/sh
+
+touch data.dat
+
+./trafic data.dat
+
+set terminal gif medium size 448,336
+set output './graphics.png'
+set xlabel 'Traffic'
+set ylabel 'Probability'
+set grid
+set nokey
+set title 'Probability of flow'
+plot "data.dat" smooth unique
