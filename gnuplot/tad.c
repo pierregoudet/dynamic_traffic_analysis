@@ -30,12 +30,11 @@ struct link* link_create()
       exit(EXIT_FAILURE);
     }
 
-  for(i = 0; i <= NB_VN; i++)
+  for(i = 0; i <  NB_VN; i++)
     {
       l->link[i] = v_net_create();
     }
   l->capacity = CAPACITY;
-  l->used_capacity = 0;
   l->r_capacity = CAPACITY;
 
   return l;
@@ -65,11 +64,10 @@ int init_link_rand(struct link* link)
   int lim = 0;
   for(i = 0; i < NB_VN; i++)
     {
-      while(lim ==0)
+      while(lim == 0)
 	{
-	  lim = rand() % link->r_capacity / 2;
-	} 
-      
+	  lim = rand() % link->r_capacity / 2; 
+	}
       if((link->r_capacity = link->r_capacity - lim) <= 0)
       	{
 	  link->r_capacity = CAPACITY;
@@ -77,25 +75,10 @@ int init_link_rand(struct link* link)
       	}
       
       init_v_net(link->link[i], lim);
-      link->used_capacity += lim;
-      printf("---> %d max_flow --- %d VN\n", link->link[i]->max_flow, i);
+      printf("---> VN : %d --- Resources : %d\n", i, link->link[i]->max_flow);
+      lim = 0;
     }
   return EXIT_SUCCESS;
-}
-
-void init_link_rand_loop(struct link* link)
-{
-  int lim = 0;
-  while(!init_link_rand(link))
-    {
-      init_link_rand(link);
-      lim ++;
-      if(lim <= 10)
-	{
-	  fprintf(stderr, "init_link_rand");
-	  exit(EXIT_FAILURE);
-	}
-    }
 }
 
 
@@ -103,9 +86,9 @@ int init_link_lin(struct link* l, unsigned int a, unsigned int b)
 {
   int i;
   int lim;
-
+  l->r_capacity = CAPACITY;
   
-  for(i = 0; i < NB_VN; i ++)
+  for(i = 0; i < NB_VN; i++)
     {
       lim = a*i + b;
       init_v_net(l->link[i], lim);
@@ -113,8 +96,8 @@ int init_link_lin(struct link* l, unsigned int a, unsigned int b)
       	{
 	  l->r_capacity = CAPACITY;
 	  return EXIT_FAILURE;
-      	}
-      printf("---> VB : %d --- %d reserved\n", i, l->link[i]->max_flow);
+      	}      
+      printf("---> VN : %d --- Resources : %d\n", i, lim);
     }
   return EXIT_SUCCESS;
 }
@@ -151,10 +134,11 @@ void link_clear(struct link *l)
     }
    
   int i;
+
   for(i = 0; i < NB_VN; i ++)
     {
       v_net_clear(l->link[i]);
     }
-
+  
   free(l);
 }
