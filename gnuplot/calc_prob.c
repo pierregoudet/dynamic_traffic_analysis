@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "const.h"
 #include "calc_prob.h"
 
-float esp(float* prob, int bound)
+float calc_esp(float* prob, int bound)
 {
   int i;
-  float esp;
+  float esp = 0;
   for(i = 1; i <= bound; i++)
     {
       esp += prob[i] * i;
@@ -15,31 +16,20 @@ float esp(float* prob, int bound)
   return esp;
 }
 
-float variance(float* prob, int bound)
+float calc_mean(int* data, int nb_member)
 {
   int i;
-  float var;
-  float esp_sq;
-  for(i = 1; i <= bound; i++)
-    {
-      esp_sq += prob[i] * i * i;
-    }
+  float mean;
+  float sum;
 
-  var = esp_sq - esp(prob, bound)*esp(prob,i);
-  return var;
+  for(i = 0; i<nb_member; i++)
+    {
+      sum += data[i];
+    }
+  
+  mean = sum / nb_member;
+
+  return mean;
 }
 
 
-void store_variance(float* prob, FILE* f)
-{
-  int i;
-  float var;
-  char tmp[SIZE];
-  for(i = 1; i < OMEGA; i++)
-    {
-      var = variance(prob, i);
-      printf("---> var %f --- prob %f\n", var, prob[i]);
-      sprintf(tmp, "%d %f\n", i, var);
-      fprintf(f, tmp);
-    }
-}

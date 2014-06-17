@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 
-float esp(float*, int);
-float variance(float*, int);
-void store_variance(float*, FILE*);
+float calc_esp(float*, int);
+float calc_mean(int*, int);
+
+
