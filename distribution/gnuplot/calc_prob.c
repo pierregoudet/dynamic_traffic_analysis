@@ -78,3 +78,19 @@ int calc_alloc(float* prob, float size, float t)
     }
   return i;
 }
+
+float calc_data_lost(float* prob, int alloc, float sum_prob)
+{
+  int i = 0;
+  float sum = 0.0;
+  float res = 0.0;
+
+  for(i = 0; i < alloc; i++)
+    {
+      sum += prob[i];
+    }
+  
+  res = sum_prob - sum;
+  
+  return res;  
+}

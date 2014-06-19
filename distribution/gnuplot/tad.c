@@ -66,7 +66,7 @@ int init_link_rand(struct link* link)
     {
       while(lim == 0)
 	{
-	  lim = rand() % link->r_capacity / 2; 
+	  lim = rand() % (link->r_capacity / 2); 
 	}
       if((link->r_capacity = link->r_capacity - lim) <= 0)
       	{
@@ -81,6 +81,27 @@ int init_link_rand(struct link* link)
   return EXIT_SUCCESS;
 }
 
+int init_link_eco(struct link* link, float rate, int req)
+{
+  int i;
+  int n_req;
+  
+  if((n_req = 1 + rate*req) <= link->r_capacity)
+    {
+      
+      for(i = 0; i < NB_VN; i++)
+	{
+	  if(link->link[i]->max_flow == 0)
+	    {
+	      link->r_capacity = link->r_capacity - n_req;
+	      init_v_net(link->link[i], req);
+	      printf("---> Allocation success on %d with %d flow (requested %d)\n", i, n_req, req);
+	      return EXIT_SUCCESS;
+	    }
+	}
+    }
+  return EXIT_FAILURE;
+}
 
 int init_link_lin(struct link* l, float a, float b)
 {
