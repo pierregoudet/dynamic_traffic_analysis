@@ -71,7 +71,7 @@ int calc_alloc(float* prob, float size, float t)
       i++;
       if(i >= size) 
       	{ 
-	  printf(" |%d --- %f sum |", i, sum);
+	  printf(" |%d --- %f sum |\n", i, sum);
       	  fprintf(stderr,"calc_alloc");
 	  break;
       	}
@@ -79,18 +79,18 @@ int calc_alloc(float* prob, float size, float t)
   return i;
 }
 
-float calc_data_lost(float* prob, int alloc, float sum_prob)
+float calc_transmission_lost(float* prob, int* alloc, float sum_prob)
 {
   int i = 0;
   float sum = 0.0;
   float res = 0.0;
 
-  for(i = 0; i < alloc; i++)
+  for(i = alloc[1]; i < alloc[0]; i++)
     {
       sum += prob[i];
     }
   
-  res = sum_prob - sum;
+  res = sum / sum_prob;
   
   return res;  
 }

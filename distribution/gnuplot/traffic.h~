@@ -1,9 +1,0 @@
-#pragma once 
-
-void cmp_gaus(int, struct data_c*);
-void simulation(struct data_c*, struct link*);
-void traffic(int, char**);
-
-
-
-

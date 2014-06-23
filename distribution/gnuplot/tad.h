@@ -10,10 +10,16 @@ struct data_c
   float occ2[CAPACITY];
   float prob[CAPACITY];
   float prob2[CAPACITY];
+  float nb_data1;
+  float nb_data2;
   float var;
   float var2;
   float std_dev;
   float std_dev2;
+  float transmission_lost1;
+  float transmission_lost2;
+  float data_lost1;
+  float data_lost2;
 };
 
 struct link
@@ -37,6 +43,7 @@ struct v_net* v_net_create();
 int init_link_rand(struct link*);
 int init_link_lin(struct link*, float, float);
 int init_link_eco(struct link*, float, int);
+int init_data_c(struct data_c*);
 void init_v_net(struct v_net*, int);
 void link_clear(struct link*);
 void v_net_clear(struct v_net*);

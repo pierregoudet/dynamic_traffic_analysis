@@ -19,6 +19,40 @@ void data_c_clear(struct data_c* d)
   free(d);
 }
 
+
+int init_data_c(struct data_c* data)
+{
+  int i = 0;  
+  
+  for(i = 0; i < TIME; i++)
+    {
+      data->mes[i] = 0;
+      data->mes2[i] = 0;
+    }
+
+  for(i = 0; i <CAPACITY; i++)
+    {
+      data->occ[i] = 0.0;
+      data->occ2[i] = 0.0;
+      data->prob[i] = 0.0;
+      data->prob2[i] = 0.0;
+    }
+
+  data->nb_data1 = 0.0;
+  data->nb_data2 = 0.0;
+  data->var= 0.0;
+  data->var2 = 0.0;
+  data->std_dev = 0.0;
+  data->std_dev2 = 0.0;
+  data->transmission_lost1 = 0.0;
+  data->transmission_lost2 = 0.0;
+  data->data_lost1 = 0.0;
+  data->data_lost2 = 0.0;
+ 
+  return EXIT_SUCCESS;
+}
+
+
 struct link* link_create()
 {
   int i;
@@ -86,14 +120,13 @@ int init_link_eco(struct link* link, float rate, int req)
   int i;
   int n_req;
   
-  if((n_req = 1 + rate*req) <= link->r_capacity)
+  if((n_req = rate*req) <= link->r_capacity)
     {
-      
-      for(i = 0; i < NB_VN; i++)
+      for(i = 0; i <= NB_VN; i++)
 	{
 	  if(link->link[i]->max_flow == 0)
 	    {
-	      link->r_capacity = link->r_capacity - n_req;
+	      link->r_capacity = link->r_capacity - n_req;	
 	      init_v_net(link->link[i], req);
 	      printf("---> Allocation success on %d with %d flow (requested %d)\n", i, n_req, req);
 	      return EXIT_SUCCESS;

@@ -2,48 +2,60 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <time.h>
+
 
 #include "const.h"
 #include "calc_prob.h"
 #include "tad.h"
 #include "traffic.h"
-#include "allocation.h"
-
 
 void simulation(struct data_c* data, struct link* link)
+
 {
   int i = 0;
   int j = 0;
-  int scale_flow = 0;
-  int safe_flow = 0;
+  int scale_flow = 0.0;
+  int safe_flow = 0.0;
   int sum = 0;
   int sum2 = 0;
-  for(i = 0; i <= TIME -1; i++)
-    {
-      
+  
+  init_data_c(data);
 
-      for(j = 0; j < NB_VN - 1; j++)
+
+  unsigned int seed = 0;
+  FILE* fp;
+  fp = fopen("/dev/random", "r");
+  fread(&seed, sizeof(int), 1, fp);
+  fclose(fp);
+
+  srand(seed); 
+  
+  for(i = 0; i < TIME; i++)
+    {          
+      for(j = 0; j < NB_VN; j++)
 	{
+
 	  scale_flow = link->link[j]->max_flow * MIN_FLOW1;
 	  safe_flow =  link->link[j]->max_flow * (1.0 - MIN_FLOW1);
 	  link->link[j]->flow = (rand() % scale_flow) + safe_flow;
 	  sum = sum + link->link[j]->flow;
 	} 
       
-      for(j = 0; j < NB_VN - 1; j++)
+      for(j = 0; j < NB_VN; j++)
 	{
 	  scale_flow = link->link[j]->max_flow * MIN_FLOW2;
 	  safe_flow =  link->link[j]->max_flow * (1.0 - MIN_FLOW2);
 	  link->link[j]->flow = (rand() % scale_flow) + safe_flow;
 	  sum2 = sum2 + link->link[j]->flow;
 	} 
-
+      
       data->mes[i] = sum;
+      data->nb_data1 = sum + data->nb_data1;
       data->occ[sum] = data->occ[sum] + 1;
       sum = 0;
-	
+      
       data->mes2[i] = sum2;
+      data->nb_data2 = sum2 + data->nb_data2;
       data->occ2[sum2] = data->occ2[sum2] + 1;
       sum2 = 0;
     }
@@ -60,11 +72,13 @@ void cmp_gaus(int mean, float std_dev, float* prob)
   
   borne_inf = (mean - std_dev);
   borne_sup = (mean + std_dev);
+
   for(i = borne_inf; i <= borne_sup; i++)
     {
       info += prob[i];
-    }
+    }  
 
+  
   printf("---> mean - std_dev = %f : distribution --- (gaussian ~= 68 percent) \n", info);
     
   borne_inf = (mean - 2*std_dev);
@@ -74,6 +88,7 @@ void cmp_gaus(int mean, float std_dev, float* prob)
     {
       info += prob[i];
     }
+
   printf("---> mean - 2*std_dev = %f : distribution --- (gaussian ~= 95 percent) \n", info);
 
 
@@ -85,122 +100,101 @@ void cmp_gaus(int mean, float std_dev, float* prob)
     {
       info += prob[i];
     }
+
   printf("---> mean - 3*std_dev = %f : distribution (gaussian ~= 99,7 percent) \n", info);
 }
 
 
-
-void traffic(int nb_file, char** file)
+float data_lost(float* mes, int* alloc)
 {
-  FILE* f;
-  FILE* f2;
+  int i = 0;
+  float data_lost = 0.0;
+
+  for(i = 0; i < TIME; i++)
+    {
+      if(mes[i] > alloc[1])
+	{
+	  data_lost = mes[i] + data_lost;
+	}
+    }
+  return data_lost;
+}
+
+
+void traffic(struct data_c* data, struct link* link, int* alloc)
+{
   int i = 0;
   int OMEGA = 0;
   float seuil = 0;
-  float sum_occ = 0;
-  float sum_occ2 = 0;
-  float sum_prob = 0.0;
-  float sum_prob2 = 0.0;
+  float sum_prob = 0;
+  float sum_prob2 = 0;
   float mean = 0.0;
   float esp = 0.0;
   float esp_sq = 0.0;
   float var1 = 0.0;
   float act_u = 0.0;
-  float data_lost = 0.0;
-  char tmp[SIZE];
-  int alloc[2]= {0};
-  
-  if(nb_file != 3)
-    {
-      fprintf(stderr,"Please enter two data file as argument\n");
-      exit(EXIT_FAILURE);
-    }
-  
-  if((f = fopen(file[1], "w+")) == NULL)
-    {
-      perror("fopen");
-    }
-  
-  if((f2 = fopen(file[2], "w+")) == NULL)
-    {
-      perror("fopen");
-    }
- 
-  time_t t;
-  srand((unsigned) time(&t));
-  
-  struct data_c* data;
-  struct link* link;
-  
-  data =  data_c_create();
-  link = link_create();
-   
-  allocation(link, RATE, alloc);
+
 
   OMEGA = alloc[0]; 
    
-  printf("---> Requested (max traffic) : %d  (OMEGA %d)--- Allocated : %d\n", alloc[0], OMEGA, alloc[1]);
+  printf("\n---> Requested (max traffic) : %d  (OMEGA %d)--- Allocated : %d\n", alloc[0], OMEGA, alloc[1]);
    
   simulation(data, link);
 
-  /*--- Calculation part ---*/
+
   for(i = 0; i < OMEGA; i++)
     {
       data->prob[i] = data->occ[i] / TIME;
       sum_prob += data->prob[i];
       data->prob2[i] = data->occ2[i] / TIME;
       sum_prob2 += data->prob2[i];
-      sum_occ += data->occ[i];
-      sum_occ2 += data->occ2[i];
-      sprintf(tmp,"%d %f %f\n", i, data->prob[i], data->prob2[i]);
-      fprintf(f, tmp);
     }    
-  printf("---> %f sum of prob (shoudld be ~= 1) )\n", sum_prob);
-  printf("---> %f sum of prob2 (shoudld be ~= 1) \n", sum_prob2);
+  /* printf("---> %f sum of prob (shoudld be ~= 1) )\n", sum_prob); */
+  /* printf("---> %f sum of prob2 (shoudld be ~= 1) \n", sum_prob2); */
     
-  mean = calc_mean(data->mes, OMEGA);
-  esp = calc_esp(data->prob, OMEGA);
-  esp_sq = calc_esp_square(data->prob, OMEGA);
-  data->var = esp_sq - esp*esp;  
-    
-  printf("\n----- FROM 0 to MAX_FLOW -----\n");
-    
-  var1 = calc_variance_esp(data->mes, mean);
-  data->std_dev = sqrt(var1);
-  printf("--->%f esp --- %f mean --- %f var / %f --- standard deviation %f\n", esp, mean, data->var, var1, data->std_dev);
+  
+  printf("----- FROM %f to %f -----\n", 1 - MIN_FLOW1, 1.0);  
+  /* mean = calc_mean(data->mes, OMEGA); */
+  /* esp = calc_esp(data->prob, OMEGA); */
+  /* esp_sq = calc_esp_square(data->prob, OMEGA); */
+  /* data->var = esp_sq - esp*esp;     */
+  /* var1 = calc_variance_esp(data->mes, mean); */
+  /* data->std_dev = sqrt(var1); */
+  /* printf("--->%f esp --- %f mean --- %f var / %f --- standard deviation %f\n", esp, mean, data->var, var1, data->std_dev); */
 
-  cmp_gaus(mean, data->std_dev, data->prob);
+  /* cmp_gaus(mean, data->std_dev, data->prob); */
       
   seuil = calc_alloc(data->prob, OMEGA, sum_prob*ADMIT_RATE);
   act_u = seuil * 100 / OMEGA;
   printf("---> %f percent used for %f percent data\n", act_u, sum_prob*ADMIT_RATE*100);
     
-  data_lost = calc_data_lost(data->prob, alloc[1], sum_prob);
-  printf("---> Lost data : %f percent\n", data_lost*100);
-    
-  printf("\n----- FORM MAX_FLOW/10 to MAX_FLOW -----\n");
-    
-  mean = calc_mean(data->mes2, OMEGA);
-  esp = calc_esp(data->prob2, OMEGA);
-  esp_sq = calc_esp_square(data->prob2, OMEGA);
-  data->var2 = esp_sq - esp*esp;  
-    
-  var1 = calc_variance_esp(data->mes2, mean);
-  data->std_dev2 = sqrt(var1);
-  printf("--->%f esp --- %f mean --- %f var / %f --- standard deviation %f\n", esp, mean, data->var2, var1, data->std_dev2);
+  data->transmission_lost1 = calc_transmission_lost(data->prob, alloc, sum_prob);
+  printf("---> Lost transmission : %f percent\n", data->transmission_lost1 * 100);
 
-  cmp_gaus(mean, data->std_dev2, data->prob2);
+  data->data_lost1 = (data_lost(data->mes, alloc) * 100 / data->nb_data1);
+  printf("amount data lost1 : %f percent (flow scale = %f ~ 1.0)\n", data->data_lost1, (1 - MIN_FLOW1));
+    
+
+  printf("\n----- FORM %f to %f -----\n", 1 - MIN_FLOW2, 1.0);    
+  /* mean = calc_mean(data->mes2, OMEGA); */
+  /* esp = calc_esp(data->prob2, OMEGA); */
+  /* esp_sq = calc_esp_square(data->prob2, OMEGA); */
+  /* data->var2 = esp_sq - esp*esp;   */
+  /* var1 = calc_variance_esp(data->mes2, mean); */
+  /* data->std_dev2 = sqrt(var1); */
+  /* printf("--->%f esp --- %f mean --- %f var / %f --- standard deviation %f\n", esp, mean, data->var2, var1, data->std_dev2); */
+
+  /* cmp_gaus(mean, data->std_dev2, data->prob2); */
       
   seuil = 0;
   seuil = calc_alloc(data->prob2, OMEGA, sum_prob2*ADMIT_RATE);
   act_u = seuil * 100 / OMEGA;
   printf("---> %f percent used for %f percent data\n", act_u, sum_prob2*ADMIT_RATE*100);
-    
-  data_lost = calc_data_lost(data->prob2, alloc[1], sum_prob2);
-  printf("---> Lost data : %f percent\n", data_lost*100);
+  
+  data->transmission_lost2 = calc_transmission_lost(data->prob2, alloc, sum_prob2);
+  printf("---> Lost transmission : %f percent\n", data->transmission_lost2 * 100);      
 
-  fclose(f);
-  fclose(f2);
-  link_clear(link);
-  data_c_clear(data);
+  data->data_lost2 = (data_lost(data->mes2, alloc) * 100 / data->nb_data2);
+  printf("amount data lost2 : %f percent (flow scale = %f ~ 1.0)\n", data->data_lost2, (1 - MIN_FLOW2));
+
 }
