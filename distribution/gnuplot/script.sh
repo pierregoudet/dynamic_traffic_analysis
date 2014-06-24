@@ -17,8 +17,8 @@ done
 gnuplot<<EOF
 set terminal png size 700,700
 set output './Measure.png'
-set xlabel 'Mean of data lost'
-set ylabel 'SImulation number'
+set ylabel 'Mean of data lost'
+set xlabel 'Simulation number'
 set grid
 set nokey
 set title 'Measure of flow'
@@ -37,7 +37,7 @@ set autoscale
 set style line 1 lt 1 lc 1
 set style line 2 lt 1 lc 2
 set title 'Distribution of probability'
-plot "distrib.dat" using 1:2 ls 1, "distrib.dat" using 1:3 ls 2
+plot "distrib.dat" using 1:2 with lines, "distrib.dat" using 1:3 with lines
 EOF
 
 display Distrib.png & display Measure.png
