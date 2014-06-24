@@ -40,6 +40,7 @@ struct v_net
 struct data_c* data_c_create();
 struct link* link_create();
 struct v_net* v_net_create();
+int init_link_blank(struct link*);
 int init_link_rand(struct link*);
 int init_link_lin(struct link*, float, float);
 int init_link_eco(struct link*, float, int);

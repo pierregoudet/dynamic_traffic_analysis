@@ -37,7 +37,6 @@ int main(int argc, char** argv)
 
   sim = atoi(argv[1]);
 
-
   data = data_c_create();
   link = link_create();
    
@@ -50,7 +49,7 @@ int main(int argc, char** argv)
      mean_lost2 = data->transmission_lost2 + mean_lost2;
      data_lost1 = data->data_lost1 + data_lost1;
      data_lost2 = data->data_lost2 + data_lost2;
-      
+     printf("----->simulation %s %d\n", argv[4], i);
 
      sprintf(tmp, "%s_%d.dat",argv[4], i);
 
@@ -61,7 +60,7 @@ int main(int argc, char** argv)
        }
      for(j = 0; j < alloc[0]; j++)
        {
-      	  sprintf(tmp, "%d %f %f %f %f \n",i ,data->prob[j], data->occ[j], data->prob2[j], data->occ2[j]);
+      	  sprintf(tmp, "%d %f %f %f %f \n",j ,data->prob[j], data->occ[j], data->prob2[j], data->occ2[j]);
       	  fprintf(file2, tmp);
        }
       fclose(file2);
@@ -81,13 +80,10 @@ int main(int argc, char** argv)
   sprintf(tmp,"%s %f %f\n", argv[4], mean_lost1, mean_lost2);
   fprintf(file, tmp);
 
-
-  
-  
   printf("alloc[0] = %d, alloc[1] = %d\n", alloc[0], alloc[1]);
 
-  data_c_clear(data);
   link_clear(link);
+  data_c_clear(data);
   fclose(file);
   return EXIT_SUCCESS;
 }

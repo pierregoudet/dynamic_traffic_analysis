@@ -15,14 +15,23 @@ int allocation(struct link* link, float rate, int* res)
 
   time_t t;
   srand ((unsigned) time(&t));
-  
-  for(i = 0; i < NB_VN; i++)
+  do
     {
-      req = rand() % (link->r_capacity/2) + 1;
-      init_link_eco(link, rate, req);
-      res[0] += req;
-      res[1] += rate*req;
+      res[0] = 0;
+      res[1] = 0;
+      init_link_blank(link);
+
+      for(i = 0; i < NB_VN; i++)
+	{
+	  req = rand() % (link->r_capacity/2) + 1;
+	  init_link_eco(link, rate, req);
+	  res[0] += req;
+	  res[1] += rate*req;
+	}
     }
+  while(res[0] >= CAPACITY);
+      
+
   return EXIT_SUCCESS;
 }
 

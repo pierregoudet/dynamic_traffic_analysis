@@ -1,6 +1,7 @@
 #!/bin/bash
 
 
+name=$1
 
 gnuplot<<EOF
 set terminal png size 700,700
@@ -11,7 +12,7 @@ set grid
 set nokey
 set autoscale
 set title 'Distribution of probability'
-plot $1 using 1:2 with lines
+plot name using 1:2 with lines
 EOF
 
 

@@ -9,6 +9,7 @@
 #include "calc_prob.h"
 #include "tad.h"
 #include "traffic.h"
+#include "test_struct.h"
 
 void simulation(struct data_c* data, struct link* link)
 
@@ -20,7 +21,7 @@ void simulation(struct data_c* data, struct link* link)
   int sum = 0;
   int sum2 = 0;
   
-  init_data_c(data);
+ 
 
   time_t t;
   unsigned int seed = 0;
@@ -29,11 +30,12 @@ void simulation(struct data_c* data, struct link* link)
   /* fread(&seed, sizeof(int), 1, fp); */
   /* fclose(fp); */
 
-
-  
   seed = time(&t);
   srand(seed); 
   sleep(1);
+  
+  init_data_c(data);
+  //test_data_c();
   
   for(i = 0; i < TIME; i++)
     {          

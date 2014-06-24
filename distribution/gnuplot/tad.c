@@ -30,7 +30,7 @@ int init_data_c(struct data_c* data)
       data->mes2[i] = 0;
     }
 
-  for(i = 0; i <CAPACITY; i++)
+  for(i = 0; i < CAPACITY; i++)
     {
       data->occ[i] = 0.0;
       data->occ2[i] = 0.0;
@@ -87,7 +87,15 @@ struct v_net* v_net_create()
   return v;
 }
 
-
+int init_link_blank(struct link * link)
+{
+  int i;
+  for(i = 0; i < NB_VN; i++)
+    {
+      init_v_net(link->link[i], 0);
+    }
+  return EXIT_SUCCESS;
+}
 
 int init_link_rand(struct link* link)
 {
@@ -118,17 +126,17 @@ int init_link_rand(struct link* link)
 int init_link_eco(struct link* link, float rate, int req)
 {
   int i;
-  int n_req;
+  int n_req = 1;
   
-  if((n_req = rate*req) <= link->r_capacity)
+  if(req <= link->r_capacity)
     {
+      n_req = rate * n_req;
       for(i = 0; i <= NB_VN; i++)
 	{
 	  if(link->link[i]->max_flow == 0)
 	    {
 	      link->r_capacity = link->r_capacity - n_req;	
 	      init_v_net(link->link[i], req);
-	      printf("---> Allocation success on %d with %d flow (requested %d)\n", i, n_req, req);
 	      return EXIT_SUCCESS;
 	    }
 	}
