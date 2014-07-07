@@ -1,3 +1,0 @@
-#pragma once
-
-int lost_data(struct data_c*);
