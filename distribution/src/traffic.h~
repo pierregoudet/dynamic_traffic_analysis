@@ -1,0 +1,11 @@
+#pragma once 
+
+#include "tad.h"
+
+void cmp_gaus(int, float, float*);
+void simulation(struct data_c*, struct link*, float, float, int);
+void traffic(struct data_c*, struct link*, int*, float, float, float);
+float data_lost(float*, int*);
+
+
+

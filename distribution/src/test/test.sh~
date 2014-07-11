@@ -1,0 +1,1 @@
+gcc -Wall -Wextra tad.c allocation.c traffic.c calc_prob.c test_struct.c -o test -lm

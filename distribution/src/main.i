@@ -8,7 +8,7 @@
 #include "main.h"
   %}
 
-%module argv
+
 
 // This tells SWIG to treat char ** as a special case
 %typemap(in) char ** {

@@ -1,0 +1,1 @@
+rm main.o main_* main.py* _main*

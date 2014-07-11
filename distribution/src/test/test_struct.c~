@@ -1,0 +1,57 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "tad.h"
+#include "const.h"
+
+
+
+void test_data_c(struct data_c* data)
+{
+  int i = 0;  
+  
+  for(i = 0; i < TIME; i++)
+    {
+      if(
+	 data->mes[i] != 0 ||
+	 data->mes2[i] != 0 
+	 )
+	{
+	  fprintf(stderr, "data_c incorrect init\n");
+	  exit(EXIT_FAILURE);
+	}
+      
+    }
+  
+  for(i = 0; i < CAPACITY; i++)
+    {
+      if(
+	 data->occ[i] != 0.0 ||
+	 data->occ2[i] != 0.0 ||
+	 data->prob[i] != 0.0 ||
+	 data->prob2[i] != 0.0 
+	 )
+	{
+	  fprintf(stderr, "data_c incorrect init\n");
+	  exit(EXIT_FAILURE);
+	}
+      
+      if(
+	 data->nb_data1 != 0.0 ||
+	 data->nb_data2 != 0.0 ||
+	 data->var!= 0.0 ||
+	 data->var2 != 0.0 ||
+	 data->std_dev != 0.0 ||
+	 data->std_dev2 != 0.0 ||
+	 data->transmission_lost1 != 0.0 ||
+	 data->transmission_lost2 != 0.0 ||
+	 data->data_lost1 != 0.0 ||
+	 data->data_lost2 != 0.0 
+	 )
+	{
+	  fprintf(stderr, "data_c incorrect init\n");
+	  exit(EXIT_FAILURE);
+	}	  
+
+    }
+}
